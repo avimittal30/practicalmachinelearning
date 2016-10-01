@@ -183,33 +183,33 @@ confMatRandForest</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1395    1    0    0    0
-##          B    0  947    2    0    0
-##          C    0    1  853    1    0
-##          D    0    0    0  803    5
-##          E    0    0    0    0  896
+##          A 1394    4    0    0    0
+##          B    1  945    1    0    0
+##          C    0    0  854    3    0
+##          D    0    0    0  801    0
+##          E    0    0    0    0  901
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.998          
-##                  95% CI : (0.9963, 0.999)
-##     No Information Rate : 0.2845         
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-##                                          
-##                   Kappa : 0.9974         
-##  Mcnemar's Test P-Value : NA             
+##                                           
+##                Accuracy : 0.9982          
+##                  95% CI : (0.9965, 0.9992)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9977          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9979   0.9977   0.9988   0.9945
-## Specificity            0.9997   0.9995   0.9995   0.9988   1.0000
-## Pos Pred Value         0.9993   0.9979   0.9977   0.9938   1.0000
-## Neg Pred Value         1.0000   0.9995   0.9995   0.9998   0.9988
+## Sensitivity            0.9993   0.9958   0.9988   0.9963   1.0000
+## Specificity            0.9989   0.9995   0.9993   1.0000   1.0000
+## Pos Pred Value         0.9971   0.9979   0.9965   1.0000   1.0000
+## Neg Pred Value         0.9997   0.9990   0.9998   0.9993   1.0000
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2845   0.1931   0.1739   0.1637   0.1827
-## Detection Prevalence   0.2847   0.1935   0.1743   0.1648   0.1827
-## Balanced Accuracy      0.9999   0.9987   0.9986   0.9988   0.9972</code></pre>
+## Detection Rate         0.2843   0.1927   0.1741   0.1633   0.1837
+## Detection Prevalence   0.2851   0.1931   0.1748   0.1633   0.1837
+## Balanced Accuracy      0.9991   0.9976   0.9990   0.9981   1.0000</code></pre>
 <p>Random Forest gives an accuracy of 99.65%</p>
 <div id="random-forest-model-with-only-important-variables" class="section level2">
 <h2>Random forest model with only important variables</h2>
@@ -221,25 +221,25 @@ confMatRandForest</code></pre>
 ## 
 ##                      Overall
 ## num_window           100.000
-## roll_belt             61.034
-## pitch_forearm         38.269
-## magnet_dumbbell_z     30.254
-## yaw_belt              29.787
-## magnet_dumbbell_y     26.471
-## pitch_belt            26.132
-## roll_forearm          22.215
-## accel_dumbbell_y      13.486
-## magnet_dumbbell_x     11.788
-## roll_dumbbell         11.465
-## accel_forearm_x       10.540
-## accel_belt_z          10.299
-## total_accel_dumbbell   8.894
-## accel_dumbbell_z       8.444
-## magnet_belt_z          7.800
-## magnet_belt_y          7.364
-## magnet_forearm_z       7.187
-## magnet_belt_x          5.675
-## roll_arm               5.189</code></pre>
+## roll_belt             62.684
+## pitch_forearm         38.416
+## yaw_belt              30.573
+## pitch_belt            29.442
+## magnet_dumbbell_z     28.131
+## magnet_dumbbell_y     27.693
+## roll_forearm          21.449
+## accel_dumbbell_y      12.374
+## magnet_dumbbell_x     11.348
+## roll_dumbbell         10.696
+## accel_belt_z          10.092
+## accel_forearm_x        9.889
+## total_accel_dumbbell   8.992
+## accel_dumbbell_z       8.049
+## magnet_belt_y          7.890
+## magnet_belt_z          7.338
+## magnet_forearm_z       7.223
+## magnet_belt_x          5.946
+## roll_arm               4.879</code></pre>
 <pre class="r"><code>## Let us identify highly correlated variables from these important variables to avoid multi-collinearity
 correl = cor(train[,c(&quot;yaw_belt&quot;,&quot;roll_belt&quot;,&quot;num_window&quot;,&quot;pitch_belt&quot;,&quot;magnet_dumbbell_z&quot;,&quot;magnet_dumbbell_y&quot;,&quot;pitch_forearm&quot;,&quot;accel_dumbbell_y&quot;,&quot;roll_arm&quot;,&quot;roll_forearm&quot;)])
 diag(correl)&lt;-0
@@ -251,9 +251,40 @@ which(abs(correl)&gt;.75, arr.ind = TRUE)</code></pre>
 <pre class="r"><code>modFitRandForest &lt;- train(classe ~ roll_belt+num_window+pitch_belt+magnet_dumbbell_z+magnet_dumbbell_y+pitch_forearm+accel_dumbbell_y+roll_arm+roll_forearm, data=train, method=&quot;rf&quot;,
                           trControl=controlRF)
 predictRandForest &lt;- predict(modFitRandForest, newdata=test)
-confMatRandForest &lt;- confusionMatrix(predictRandForest, test$classe)
-confMatRandForest</code></pre>
-<p>This produces a higher accuracy</p>
+confMatRandForest &lt;- confusionMatrix(predictRandForest, test$classe)</code></pre>
+<pre class="r"><code>confMatRandForest</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1395    3    0    0    0
+##          B    0  946    1    0    0
+##          C    0    0  854    1    0
+##          D    0    0    0  803    1
+##          E    0    0    0    0  900
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9988          
+##                  95% CI : (0.9973, 0.9996)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9985          
+##  Mcnemar's Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   0.9968   0.9988   0.9988   0.9989
+## Specificity            0.9991   0.9997   0.9998   0.9998   1.0000
+## Pos Pred Value         0.9979   0.9989   0.9988   0.9988   1.0000
+## Neg Pred Value         1.0000   0.9992   0.9998   0.9998   0.9998
+## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
+## Detection Rate         0.2845   0.1929   0.1741   0.1637   0.1835
+## Detection Prevalence   0.2851   0.1931   0.1743   0.1639   0.1835
+## Balanced Accuracy      0.9996   0.9983   0.9993   0.9993   0.9994</code></pre>
+<p>This produces almost the same accuracy</p>
 </div>
 <div id="gbm-model" class="section level2">
 <h2>GBM Model</h2>
@@ -269,34 +300,34 @@ confgbm &lt;- confusionMatrix(predictgbm, test$classe)</code></pre>
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1388    3    0    0    0
-##          B    5  939    7    2    1
-##          C    0    7  843    2    3
-##          D    0    0    5  799   10
-##          E    2    0    0    1  887
+##          A 1393    6    0    1    0
+##          B    1  931    4    6    3
+##          C    0    8  847    3    3
+##          D    1    4    3  792    5
+##          E    0    0    1    2  890
 ## 
 ## Overall Statistics
-##                                          
-##                Accuracy : 0.9902         
-##                  95% CI : (0.987, 0.9928)
-##     No Information Rate : 0.2845         
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16      
-##                                          
-##                   Kappa : 0.9876         
-##  Mcnemar's Test P-Value : NA             
+##                                           
+##                Accuracy : 0.9896          
+##                  95% CI : (0.9863, 0.9922)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.9868          
+##  Mcnemar's Test P-Value : NA              
 ## 
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            0.9950   0.9895   0.9860   0.9938   0.9845
-## Specificity            0.9991   0.9962   0.9970   0.9963   0.9993
-## Pos Pred Value         0.9978   0.9843   0.9860   0.9816   0.9966
-## Neg Pred Value         0.9980   0.9975   0.9970   0.9988   0.9965
+## Sensitivity            0.9986   0.9810   0.9906   0.9851   0.9878
+## Specificity            0.9980   0.9965   0.9965   0.9968   0.9993
+## Pos Pred Value         0.9950   0.9852   0.9837   0.9839   0.9966
+## Neg Pred Value         0.9994   0.9955   0.9980   0.9971   0.9973
 ## Prevalence             0.2845   0.1935   0.1743   0.1639   0.1837
-## Detection Rate         0.2830   0.1915   0.1719   0.1629   0.1809
-## Detection Prevalence   0.2836   0.1945   0.1743   0.1660   0.1815
-## Balanced Accuracy      0.9971   0.9928   0.9915   0.9951   0.9919</code></pre>
-<p>This model gives an accuracy which is slightly lower than that of random forest. So the best accuracy is given by random forest model with only 9 important variables.</p>
+## Detection Rate         0.2841   0.1898   0.1727   0.1615   0.1815
+## Detection Prevalence   0.2855   0.1927   0.1756   0.1642   0.1821
+## Balanced Accuracy      0.9983   0.9887   0.9936   0.9910   0.9935</code></pre>
+<p>This model gives an accuracy which is slightly lower than that of random forest. So the best accuracy is given by random forest model.</p>
 <p>The accuracy obtained (accuracy = 99.77%, and out-of-sample error = 0.23%) is obviously highly suspicious as it is never the case that machine learning algorithms are that accurate, and a mere 85% if often a good accuracy result.</p>
 </div>
 </div>

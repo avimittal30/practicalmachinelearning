@@ -67,14 +67,16 @@ which(abs(correl)>.75, arr.ind = TRUE)
 ```
 We see that yaw_belt and roll_belt are highly correlated. We will choose to remove yaw_belt ( with lower importance) and re-run the random forest model with remaining 9 variables
 
-```{r, results='hide'}
+```{r}
 modFitRandForest <- train(classe ~ roll_belt+num_window+pitch_belt+magnet_dumbbell_z+magnet_dumbbell_y+pitch_forearm+accel_dumbbell_y+roll_arm+roll_forearm, data=train, method="rf",
                           trControl=controlRF)
 predictRandForest <- predict(modFitRandForest, newdata=test)
 confMatRandForest <- confusionMatrix(predictRandForest, test$classe)
+```
+```{r}
 confMatRandForest
 ```
-This produces a higher accuracy
+This produces almost the same accuracy
 
 ## GBM Model
 Let us also try GBM model
@@ -88,7 +90,7 @@ confgbm <- confusionMatrix(predictgbm, test$classe)
 ```{r}
 confgbm
 ```
-This model gives an accuracy which is slightly lower than that of random forest. So the best accuracy is given by random forest model with only 9 important variables.
+This model gives an accuracy which is slightly lower than that of random forest. So the best accuracy is given by random forest model.
 
 
 The accuracy obtained (accuracy = 99.77%, and out-of-sample error = 0.23%) is obviously highly suspicious as it is never the case that machine learning algorithms 
