@@ -1,0 +1,95 @@
+---
+title: "Practical Machine Learning Course Assignment"
+author: "Aviral Mittal"
+date: "October 1, 2016"
+output: html_document
+---
+
+## Objective
+
+The goal of this exercise is to predict classe variable that suggests the manner in which the participant did the exercise. The report descibes how the model for the 
+project was built, its cross validation, expected out of sample error calculation, and the choices made. It was used successfully to accurately predict all 20 
+different test cases on the Coursera website.  
+## Loading the required libraries
+```{r, results="hide"}
+library(caret)
+library(gbm)
+library(survival)
+library(splines)
+library(parallel)
+```
+## Data fetching and Cleaning 
+Read the data from the file treating blanks, NA and #DIV/0! as NA
+```{r a, results="hide"}
+train_set <- read.csv("pml-training.csv", na.strings=c("NA","#DIV/0!",""))
+```
+Remove columns with NA values
+```{r, results="hide"}
+train_set<-train_set[, apply(train_set, 2, function(x) !any(is.na(x)))] 
+```
+Remove unrequired variables
+```{r, results="hide"}
+train_set<-train_set[,-(1:5)]
+```
+
+## Data partition into training and test set
+I have taken 75% of the data to train the model. 
+```{r, results="hide"}
+inTrain<-createDataPartition(train_set$classe, p=.75, list=FALSE)
+train<-train_set[inTrain,]
+test<-train_set[-inTrain,]
+```
+
+## Fit Random Forest Model:
+```{r, results='hide'}
+controlRF <- trainControl(method="cv", number=3, verboseIter=FALSE)
+modFitRandForest <- train(classe ~ ., data=train, method="rf",
+                          trControl=controlRF)
+```
+Since the data set is large, taking a small number of folds would produce good results.
+
+#Check the accuracy
+```{r}
+predictRandForest <- predict(modFitRandForest, newdata=test)
+confMatRandForest <- confusionMatrix(predictRandForest, test$classe)
+confMatRandForest
+```
+Random Forest gives an accuracy of 99.65%
+
+## Random forest model with only important variables
+Determine the important variables
+```{r, eval=TRUE}
+varImp(modFitRandForest)
+## Let us identify highly correlated variables from these important variables to avoid multi-collinearity
+correl = cor(train[,c("yaw_belt","roll_belt","num_window","pitch_belt","magnet_dumbbell_z","magnet_dumbbell_y","pitch_forearm","accel_dumbbell_y","roll_arm","roll_forearm")])
+diag(correl)<-0
+which(abs(correl)>.75, arr.ind = TRUE)
+```
+We see that yaw_belt and roll_belt are highly correlated. We will choose to remove yaw_belt ( with lower importance) and re-run the random forest model with remaining 9 variables
+
+```{r, results='hide'}
+modFitRandForest <- train(classe ~ roll_belt+num_window+pitch_belt+magnet_dumbbell_z+magnet_dumbbell_y+pitch_forearm+accel_dumbbell_y+roll_arm+roll_forearm, data=train, method="rf",
+                          trControl=controlRF)
+predictRandForest <- predict(modFitRandForest, newdata=test)
+confMatRandForest <- confusionMatrix(predictRandForest, test$classe)
+confMatRandForest
+```
+This produces a higher accuracy
+
+## GBM Model
+Let us also try GBM model
+```{r, results="hide"}
+controlRF <- trainControl(method="repeatedcv", number=4, repeats=1,verboseIter=FALSE)
+modFitgbm<-train(classe ~ ., data=train, method="gbm",
+                          trControl=controlRF)
+predictgbm <- predict(modFitgbm, newdata=test)
+confgbm <- confusionMatrix(predictgbm, test$classe)
+```
+```{r}
+confgbm
+```
+This model gives an accuracy which is slightly lower than that of random forest. So the best accuracy is given by random forest model with only 9 important variables.
+
+
+The accuracy obtained (accuracy = 99.77%, and out-of-sample error = 0.23%) is obviously highly suspicious as it is never the case that machine learning algorithms 
+are that accurate, and a mere 85% if often a good accuracy result.
